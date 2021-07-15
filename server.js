@@ -88,7 +88,9 @@ app.get("/employees/add", (req,res) => {
 
 app.get("/images", (req,res) => {
     fs.readdir("./public/images/uploaded", function(err, items) {
-        res.json({images:items});
+        //res.json({images:items});
+        //Part 2 step 1:
+        res.render("images.hbs", {images:items});
     });
 });
 

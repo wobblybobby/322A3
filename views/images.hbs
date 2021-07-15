@@ -1,0 +1,21 @@
+{{!-- Part 2 Step 1: --}}
+
+<div class="row">
+{{#if images}}
+<div class="col-md-12">
+    <h2>Images</h2>
+    <hr />
+</div>
+ {{!-- <div class="col-md-4">
+ <img src="/images/uploaded/1518186273491.jpg" class="img-responsive img-thumbnail" /> --}}
+    {{#each images}}
+    <div class="col-md-4">
+        <img src="/images/uploaded/{{this}}" class="img-responsive img-thumbnail" />
+    </div>
+    {{/each}}
+{{else}}
+<div class="col-md-12 text-center">
+    <strong>No Images Available</strong>
+</div>
+{{/if}}
+</div>
