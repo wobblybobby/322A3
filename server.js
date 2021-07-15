@@ -97,27 +97,35 @@ app.get("/images", (req,res) => {
 app.get("/employees", (req, res) => {
     if (req.query.status) {
         data.getEmployeesByStatus(req.query.status).then((data) => {
-            res.json(data);
+            //res.json(data);
+            res.render("employees.hbs", {employees: data});
         }).catch((err) => {
-            res.json({ message: "no results" });
+            //res.json({ message: "no results" });
+            res.render("employees.hbs", {message: "no results"});
         });
     } else if (req.query.department) {
         data.getEmployeesByDepartment(req.query.department).then((data) => {
-            res.json(data);
+            //res.json(data);
+            res.render("employees.hbs", {employees: data});
         }).catch((err) => {
-            res.json({ message: "no results" });
+            //res.json({ message: "no results" });
+            res.render("employees.hbs", {message: "no results"});
         });
     } else if (req.query.manager) {
         data.getEmployeesByManager(req.query.manager).then((data) => {
-            res.json(data);
+            //res.json(data);
+            res.render("employees.hbs", {employees: data});
         }).catch((err) => {
-            res.json({ message: "no results" });
+            //res.json({ message: "no results" });
+            res.render("employees.hbs", {message: "no results"});
         });
     } else {
         data.getAllEmployees().then((data) => {
-            res.json(data);
+            //res.json(data);
+            res.render("employees.hbs", {employees: data});
         }).catch((err) => {
-            res.json({ message: "no results" });
+            //res.json({ message: "no results" });
+            res.render("employees.hbs", {message: "no results"});
         });
     }
 });
