@@ -146,7 +146,8 @@ app.get("/managers", (req,res) => {
 
 app.get("/departments", (req,res) => {
     data.getDepartments().then((data)=>{
-        res.json(data);
+        //res.json(data);
+        res.render("departments.hbs", {departments : data});
     });
 });
 
