@@ -6,7 +6,7 @@
 *
 * Name: _______BOBBY LI_______ Student ID: __045895042___ Date: _July 17, 2021__
 *
-* Online (Heroku) Link: https://bli322a3.herokuapp.com/employees
+* Online (Heroku) Link: https://bli322a3.herokuapp.com/
 *
 ********************************************************************************/ 
 
