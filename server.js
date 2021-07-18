@@ -1,8 +1,19 @@
+/*********************************************************************************
+* WEB322 – Assignment 03
+* I declare that this assignment is my own work in accordance with Seneca Academic Policy. No part
+* of this assignment has been copied manually or electronically from any other source
+* (including 3rd party web sites) or distributed to other students.
+*
+* Name: _______BOBBY LI_______ Student ID: __045895042___ Date: _July 17, 2021__
+*
+* Online (Heroku) Link: ________________________________________________________
+*
+********************************************************************************/ 
+
 const express = require("express");
 
 //Part 1 Step 1:
 const exphbs = require("express-handlebars");
-//
 
 const path = require("path");
 const data = require("./data-service.js");
@@ -63,33 +74,25 @@ app.use(function(req,res,next){
     app.locals.activeRoute = (route == "/") ? "/" : route.replace(/\/$/, "");
     next();
    });   
-//
-
 
 app.get("/", (req,res) => {
-    //res.sendFile(path.join(__dirname, "/views/home.html"));
     res.render("home.hbs");
 });
 
 app.get("/about", (req,res) => {
-    //res.sendFile(path.join(__dirname, "/views/about.html"));
     res.render("about.hbs");
 });
 
 app.get("/images/add", (req,res) => {
-    //res.sendFile(path.join(__dirname, "/views/addImage.html"));
     res.render("addImage.hbs");
 });
 
 app.get("/employees/add", (req,res) => {
-    //res.sendFile(path.join(__dirname, "/views/addEmployee.html"));
     res.render("addEmployee.hbs");
 });
 
 app.get("/images", (req,res) => {
     fs.readdir("./public/images/uploaded", function(err, items) {
-        //res.json({images:items});
-        //Part 2 step 1:
         res.render("images.hbs", {images:items});
     });
 });
@@ -97,34 +100,26 @@ app.get("/images", (req,res) => {
 app.get("/employees", (req, res) => {
     if (req.query.status) {
         data.getEmployeesByStatus(req.query.status).then((data) => {
-            //res.json(data);
             res.render("employees.hbs", {employees: data});
         }).catch((err) => {
-            //res.json({ message: "no results" });
             res.render("employees.hbs", {message: "no results"});
         });
     } else if (req.query.department) {
         data.getEmployeesByDepartment(req.query.department).then((data) => {
-            //res.json(data);
             res.render("employees.hbs", {employees: data});
         }).catch((err) => {
-            //res.json({ message: "no results" });
             res.render("employees.hbs", {message: "no results"});
         });
     } else if (req.query.manager) {
         data.getEmployeesByManager(req.query.manager).then((data) => {
-            //res.json(data);
             res.render("employees.hbs", {employees: data});
         }).catch((err) => {
-            //res.json({ message: "no results" });
             res.render("employees.hbs", {message: "no results"});
         });
     } else {
         data.getAllEmployees().then((data) => {
-            //res.json(data);
             res.render("employees.hbs", {employees: data});
         }).catch((err) => {
-            //res.json({ message: "no results" });
             res.render("employees.hbs", {message: "no results"});
         });
     }
@@ -132,9 +127,9 @@ app.get("/employees", (req, res) => {
 
 app.get("/employee/:empNum", (req, res) => {
     data.getEmployeeByNum(req.params.empNum).then((data) => {
-        res.json(data);
+        res.render("employee.hbs", {employee: data});
     }).catch((err) => {
-        res.json({message:"no results"});
+        res.render("employee.hbs", {message: "no results"});
     });
 });
 
@@ -146,11 +141,16 @@ app.get("/managers", (req,res) => {
 
 app.get("/departments", (req,res) => {
     data.getDepartments().then((data)=>{
-        //res.json(data);
         res.render("departments.hbs", {departments : data});
     });
 });
 
+// Part 5
+app.post("/employee/update", (req, res) => {
+    data.updateEmployee(req.body).then(()=>{
+        res.redirect("/employees");
+    });
+   });
 
 app.post("/employees/add", (req, res) => {
     data.addEmployee(req.body).then(()=>{

@@ -146,3 +146,19 @@ module.exports.getDepartments = function(){
     resolve(departments);
    });
 }
+
+module.exports.updateEmployee = function(employeeData){
+    return new Promise((resolve, reject)=>{
+        var updated = false;
+        for (let i = 0; i < employees.length; i++) {
+            if (employees[i].employeeNum == employeeData.employeeNum) {
+                employees[i] = employeeData;
+                updated = true;
+            }
+        }
+        if (!updated) {
+            reject("query returned 0 results"); return;
+        }
+        resolve();
+    })
+};
