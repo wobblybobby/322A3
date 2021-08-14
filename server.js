@@ -29,6 +29,27 @@ const clientSessions = require("client-sessions");
 const HTTP_PORT = process.env.PORT || 8080;
 
 
+app.use(clientSessions({
+    cookieName: "session", 
+    secret: "web322_a5finalproject", 
+    duration: 2 * 60 * 1000, 
+    activeDuration: 1000 * 60 
+}));
+
+app.use(function(req, res, next) {
+    res.locals.session = req.session;
+    next();
+});
+
+function ensureLogin(req, res, next) {
+    if (!req.session.user) {
+      res.redirect("/login");
+    } else {
+      next();
+    }
+}
+
+
 //Part 1 Step 1:
 app.engine('.hbs', exphbs({ 
     extname: '.hbs',
@@ -285,9 +306,6 @@ app.get("/login", (req,res) => {
 app.get("/register", (req,res) => {
     res.render("register.hbs");
 });
-app.post("/images/add", upload.single("imageFile"), ensureLogin, (req,res) =>{
-    res.redirect("/images");
-});
 app.post("/register", (req, res) =>{
     dataServiceAuth.registerUser(req.body).then(()=>{
         res.render("register.hbs", {successMessage: "User created"});
@@ -304,12 +322,11 @@ app.post("/login", (req, res) =>{
         email: user.email,
         loginHistory: user.loginHistory
         }
-        res.redirect('employees.hbs');
+        res.redirect('/employees');
        }).catch((err) =>{
            res.render("login.hbs", {errorMessage: err, userName: req.body.userName});
        })
-       
-})
+});
 app.get("/logout", (req, res) => {
     req.session.reset();
     res.redirect("/login");
@@ -323,14 +340,6 @@ app.use((req, res) => {
     res.status(404).send("Page Not Found");
   });
 
-/* data.initialize().then(function(){
-    app.listen(HTTP_PORT, function(){
-        console.log("app listening on: " + HTTP_PORT)
-    });
-}).catch(function(err){
-    console.log("unable to start server: " + err);
-}); */
-
 data.initialize()
 .then(dataServiceAuth.initialize)
 .then(function(){
@@ -340,23 +349,3 @@ data.initialize()
 }).catch(function(err){
  console.log("unable to start server: " + err);
 });
-
-app.use(clientSessions({
-    cookieName: "session", // this is the object name that will be added to 'req'
-    secret: "web322_a5finalproject", // this should be a long un-guessable string.
-    duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
-    activeDuration: 1000 * 60 // the session will be extended by this many ms each request (1 minute)
-}));
-
-app.use(function(req, res, next) {
-    res.locals.session = req.session;
-    next();
-});
-
-function ensureLogin(req, res, next) {
-    if (!req.session.user) {
-      res.redirect("/login");
-    } else {
-      next();
-    }
-}

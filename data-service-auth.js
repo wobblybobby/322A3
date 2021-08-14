@@ -1,9 +1,6 @@
 var mongoose = require("mongoose");
-//const { updateDepartment } = require("./data-service");
 const bcrypt = require('bcryptjs');
 var Schema = mongoose.Schema;
-
-//mongoose.connect("mongodb+srv://dbUser322A5:<password>@senecaweb322a5.jmrqi.mongodb.net/web322_week8?retryWrites=true&w=majority");
 
 var userSchema = new Schema({
     "userName" : {
@@ -33,27 +30,6 @@ module.exports.initialize = function () {
     });
 };
 
-/* module.exports.registerUser = function (userData) {
-    return new Promise(function (resolve, reject) {
-        if (userData.password != userData.password2) {
-            reject("Passwords do not match");
-        }
-        else {
-            let newUser = new User(userData);
-            newUser.save((err) => {
-                if (err) {
-                    if (err.code == 11000)
-                        reject("User Name already taken");
-                    reject(`There was an error creating the user: ${err}`);
-                }
-                else {
-                    resolve();
-                }
-            });
-        }
-    })
-} */
-
 module.exports.registerUser = function (userData) {
     return new Promise(function (resolve, reject) {
         if (userData.password != userData.password2) {
@@ -82,42 +58,6 @@ module.exports.registerUser = function (userData) {
         }
     })
 }
-
-/* module.exports.checkUser = function (userData) {
-    return new Promise(function (resolve, reject) {
-        User.find({ userName: userData.userName }).exec()
-        .then((users) => {
-            if (!users)
-            {
-                console.log(users[0].userName); //
-                reject(`Unable to find user: ${userName}`); //
-            }
-            else
-            {
-                if (users[0].password != userData.password)
-                {
-                    console.log(users[0].password); //
-                    reject(`Incorrect Password for user: ${userName}`);
-                }
-                else {
-                    console.log(users[0].userName); //
-                    users[0].loginHistory.push({dateTime: (new Date()).toString(), userAgent: userData.userAgent});
-                    User.updateOne(
-                        { userName : users[0].userName },
-                        { $set : { loginHistory: users[0].loginHistory }}
-                    ).exec()
-                    .then(() => {
-                        resolve(users[0]);
-                    }).catch((err) => {
-                        reject(`There was an error verifying the user: ${err}`);
-                    });
-                }
-            }
-        }).catch((err) => {
-            reject(`Unable to find user: ${userData.userName}`); //
-        })
-    })
-} */
 
 module.exports.checkUser = function (userData) {
     return new Promise(function (resolve, reject) {
