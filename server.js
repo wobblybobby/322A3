@@ -1,10 +1,10 @@
 /*********************************************************************************
-* WEB322 – Assignment 04
+* WEB322 – Assignment 05
 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. No part
 * of this assignment has been copied manually or electronically from any other source
 * (including 3rd party web sites) or distributed to other students.
 *
-* Name: _______BOBBY LI_______ Student ID: __045895042___ Date: _July 30, 2021__
+* Name: _______BOBBY LI_______ Student ID: __045895042___ Date: August 13, 2021__
 *
 * Online (Heroku) Link: https://bli322a3.herokuapp.com/
 *
@@ -21,6 +21,10 @@ const bodyParser = require('body-parser');
 const fs = require("fs");
 const multer = require("multer");
 const app = express();
+
+// A5
+const dataServiceAuth = require("./data-service-auth.js");
+const clientSessions = require("client-sessions");
 
 const HTTP_PORT = process.env.PORT || 8080;
 
@@ -83,11 +87,11 @@ app.get("/about", (req,res) => {
     res.render("about.hbs");
 });
 
-app.get("/images/add", (req,res) => {
+app.get("/images/add", ensureLogin, (req,res) => {
     res.render("addImage.hbs");
 });
 
-app.get("/employees/add", (req,res) => {
+app.get("/employees/add", ensureLogin, (req,res) => {
     data.getDepartments().then(function (data) {
         res.render("addEmployee", {departments: data});
     }).catch(function (err) {
@@ -95,13 +99,13 @@ app.get("/employees/add", (req,res) => {
     })
 });
 
-app.get("/images", (req,res) => {
+app.get("/images", ensureLogin, (req,res) => {
     fs.readdir("./public/images/uploaded", function(err, items) {
         res.render("images.hbs", {images:items});
     });
 });
 
-app.get("/employees", (req, res) => {
+app.get("/employees", ensureLogin, (req, res) => {
     if (req.query.status) {
         data.getEmployeesByStatus(req.query.status).then((data) => {
             if (data.length > 0)
@@ -145,7 +149,7 @@ app.get("/employees", (req, res) => {
     }
 });
 
-app.get("/employee/:empNum", (req, res) => {
+app.get("/employee/:empNum", ensureLogin, (req, res) => {
     // initialize an empty object to store the values
     let viewData = {};
     
@@ -189,7 +193,7 @@ app.get("/employee/:empNum", (req, res) => {
        ;
 }); */
 
-app.get("/departments", (req,res) => {
+app.get("/departments", ensureLogin, (req,res) => {
     data.getDepartments().then((data)=>{
         if (data.length > 0)
             res.render("departments.hbs", {departments : data});
@@ -201,7 +205,7 @@ app.get("/departments", (req,res) => {
 });
 
 // Part 5
-app.post("/employee/update", (req, res) => {
+app.post("/employee/update", ensureLogin, (req, res) => {
     data.updateEmployee(req.body).then(()=>{
         res.redirect("/employees");
     }).catch((err)=>{
@@ -210,7 +214,7 @@ app.post("/employee/update", (req, res) => {
        ;
    });
 
-app.post("/employees/add", (req, res) => {
+app.post("/employees/add", ensureLogin, (req, res) => {
     data.addEmployee(req.body)
         .then(res.redirect('/employees'))
         .catch((err)=>{
@@ -218,17 +222,17 @@ app.post("/employees/add", (req, res) => {
            });
   });
 
-app.post("/images/add", upload.single("imageFile"), (req,res) =>{
+app.post("/images/add", upload.single("imageFile"), ensureLogin, (req,res) =>{
     res.redirect("/images");
 });
 
 
 // A4
-app.get("/departments/add", (req,res) => {
+app.get("/departments/add", ensureLogin, (req,res) => {
     res.render("addDepartment.hbs");
 });
 
-app.post('/departments/add', function(req, res) {
+app.post('/departments/add', ensureLogin, function(req, res) {
     data.addDepartment(req.body)
         .then(res.redirect('/departments'))
         .catch((err) => res.status(500).send("Unable to Add Department"))
@@ -236,7 +240,7 @@ app.post('/departments/add', function(req, res) {
 
 //
 
-app.post("/department/update", (req, res) => {
+app.post("/department/update", ensureLogin, (req, res) => {
     data.updateDepartment(req.body).then(()=>{
         res.redirect("/departments");
     }).catch((err)=>{
@@ -245,7 +249,7 @@ app.post("/department/update", (req, res) => {
        ;
 });
 
-app.get("/department/:departmentId", (req, res) => {
+app.get("/department/:departmentId", ensureLogin, (req, res) => {
     data.getDepartmentById(req.params.departmentId).then((data) => {
         console.log(data + data.length)
         if (data)
@@ -257,7 +261,7 @@ app.get("/department/:departmentId", (req, res) => {
     });
 });
 
-app.get("/departments/delete/:departmentId", (req, res) => {
+app.get("/departments/delete/:departmentId", ensureLogin, (req, res) => {
     data.deleteDepartmentById(req.params.departmentId).then(() => {
         res.redirect("/departments");
     }).catch(() => {
@@ -266,22 +270,93 @@ app.get("/departments/delete/:departmentId", (req, res) => {
         })
 });
 
-app.get("/employees/delete/:empNum", (req, res) => {
+app.get("/employees/delete/:empNum", ensureLogin, (req, res) => {
     data.deleteEmployeeByNum(req.params.empNum).then(() => {
         res.redirect("/employees")}).catch(() => {
             res.status(500).send("Unable to Remove Employee / Employee not found)")
         })
 });
 
+// A5 Step 5
+app.get("/login", (req,res) => {
+    res.render("login.hbs");
+});
+
+app.get("/register", (req,res) => {
+    res.render("register.hbs");
+});
+app.post("/images/add", upload.single("imageFile"), ensureLogin, (req,res) =>{
+    res.redirect("/images");
+});
+app.post("/register", (req, res) =>{
+    dataServiceAuth.registerUser(req.body).then(()=>{
+        res.render("register.hbs", {successMessage: "User created"});
+    }).catch((err)=>{
+        res.render("register.hbs"), {errorMessage: err, userName: req.body.userName};
+    })
+});
+app.post("/login", (req, res) =>{
+    req.body.userAgent = req.get('User-Agent');
+
+    dataServiceAuth.checkUser(req.body).then((user) => {
+        req.session.user = {
+        userName: user.userName,
+        email: user.email,
+        loginHistory: user.loginHistory
+        }
+        res.redirect('employees.hbs');
+       }).catch((err) =>{
+           res.render("login.hbs", {errorMessage: err, userName: req.body.userName});
+       })
+       
+})
+app.get("/logout", (req, res) => {
+    req.session.reset();
+    res.redirect("/login");
+})
+app.get("/userHistory", ensureLogin, (req, res) =>{
+    res.render("userHistory.hbs")
+})
+
 //
 app.use((req, res) => {
     res.status(404).send("Page Not Found");
   });
 
-data.initialize().then(function(){
+/* data.initialize().then(function(){
     app.listen(HTTP_PORT, function(){
         console.log("app listening on: " + HTTP_PORT)
     });
 }).catch(function(err){
     console.log("unable to start server: " + err);
+}); */
+
+data.initialize()
+.then(dataServiceAuth.initialize)
+.then(function(){
+ app.listen(HTTP_PORT, function(){
+ console.log("app listening on: " + HTTP_PORT)
+ });
+}).catch(function(err){
+ console.log("unable to start server: " + err);
 });
+
+app.use(clientSessions({
+    cookieName: "session", // this is the object name that will be added to 'req'
+    secret: "web322_a5finalproject", // this should be a long un-guessable string.
+    duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+    activeDuration: 1000 * 60 // the session will be extended by this many ms each request (1 minute)
+}));
+
+app.use(function(req, res, next) {
+    res.locals.session = req.session;
+    next();
+});
+
+function ensureLogin(req, res, next) {
+    if (!req.session.user) {
+      res.redirect("/login");
+    } else {
+      next();
+    }
+}
